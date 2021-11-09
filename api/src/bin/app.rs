@@ -22,13 +22,21 @@ struct Doc {
     tags: Vec<String>,
 }
 
+fn with_db(client: Client) ->  impl Filter<Extract = (Client,), Error = std::convert::Infallible> + Clone {
+    warp::any().map(move || client.clone())
+}
+
 #[tokio::main]
 async fn main() {
     let addr = build_ip_addr(DEFAULT_IP, DEFAULT_PORT);
 
+    let client_options = ClientOptions::parse(DB_HOST).await.unwrap();
+    let client = Client::with_options(client_options).unwrap();
+
     // Register Routes
     let routes = warp::get()
         .and(warp::path("docs"))
+        .and(with_db(client))
         .and(warp::query::<HashMap<String, String>>())
         .and_then(list_all_doc_tags);
 
@@ -42,9 +50,7 @@ fn build_ip_addr(ip: &str, port: u16) -> SocketAddr {
     SocketAddr::new(ip, port)
 }
 
-async fn list_all_doc_tags(param: HashMap<String, String>) -> Result<impl warp::Reply, std::convert::Infallible> {
-        let client_options = ClientOptions::parse(DB_HOST).await.unwrap();
-        let client = Client::with_options(client_options).unwrap();
+async fn list_all_doc_tags(client: Client, param: HashMap<String, String>) -> Result<impl warp::Reply, std::convert::Infallible> {
         let db = client.database("tagdb");
         let collection = db.collection::<Doc>("docs");
         let mut cursor = collection.find(None, None).await.unwrap();
