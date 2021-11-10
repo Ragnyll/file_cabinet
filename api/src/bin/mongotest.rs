@@ -3,11 +3,12 @@ use mongodb::bson::{doc};
 use serde::{Deserialize, Serialize};
 use futures::stream::TryStreamExt;
 
-
 #[tokio::main]
 async fn main() {
     // Parse a connection string into an options struct.
-    let mut client_options = ClientOptions::parse("mongodb://localhost:27017").await.unwrap();
+    let mut client_options = ClientOptions::parse("mongodb://localhost:27017")
+        .await
+        .unwrap();
 
     // Manually set an option.
     client_options.app_name = Some("My App".to_string());
@@ -35,5 +36,5 @@ async fn main() {
 struct Doc {
     path: Option<String>,
     inode: f32,
-    tags: Vec<String>
+    tags: Vec<String>,
 }
