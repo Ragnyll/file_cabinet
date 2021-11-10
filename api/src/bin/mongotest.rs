@@ -1,5 +1,5 @@
 use mongodb::{Client, options::ClientOptions};
-use mongodb::bson::{doc, Document};
+use mongodb::bson::{doc};
 use serde::{Deserialize, Serialize};
 use futures::stream::TryStreamExt;
 
@@ -22,7 +22,7 @@ async fn main() {
 
     let db = client.database("tagdb");
     let collection = db.collection::<Doc>("docs");
-    let filter = doc! { "path": "path/to/doc".to_owned() };
+    // let filter = doc! { "path": "path/to/doc".to_owned() };
     let mut cursor = collection.find(None, None).await.unwrap();
 
     // Iterate over the results of the cursor.
