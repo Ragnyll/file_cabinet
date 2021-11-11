@@ -1,5 +1,5 @@
 use serde::{Serialize, Deserialize};
-use mongodb::bson::{doc};
+use mongodb::bson::doc;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Doc {
