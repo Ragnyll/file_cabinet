@@ -16,6 +16,7 @@ pub fn mount_routes(
     warp::path!("docs")
         .and(warp::get())
         .and(with_db(client))
+        .and(warp::header("Authorization"))
         .and(warp::query::<HashMap<String, String>>())
         .and_then(docs::list_all_doc_tags)
 }

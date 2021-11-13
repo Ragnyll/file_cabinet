@@ -3,11 +3,18 @@ use futures::stream::TryStreamExt;
 use std::collections::HashMap;
 
 use crate::extract::models::doc;
+use crate::auth::authorization;
 
 pub async fn list_all_doc_tags(
     client: Client,
+    auth: String,
     param: HashMap<String, String>,
 ) -> Result<impl warp::Reply, std::convert::Infallible> {
+    if !authorization::is_authorized(&client, &auth)
+        .await
+        .expect("unable to handle authorization")
+    {}
+
     let db = client.database("tagdb");
     let collection = db.collection::<doc::Doc>("docs");
     let mut cursor = collection.find(None, None).await.unwrap();
