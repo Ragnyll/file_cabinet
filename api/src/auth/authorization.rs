@@ -1,6 +1,9 @@
+use chrono::DateTime;
 use mongodb::bson::doc;
 use mongodb::Client;
 use serde::{Serialize, Deserialize};
+
+const DT_FORMAT: &str = "%Y %b %d %H:%M:%S%.3f %z";
 
 #[derive(Serialize, Deserialize, Debug)]
 struct ApiKey {
@@ -8,6 +11,7 @@ struct ApiKey {
     api_name: String,
     api_key: String,
     issued_dt: String,
+    /// consumes dt of format "%Y %b %d %H:%M:%S%.3f %z"
     expire_dt: String,
 }
 
@@ -21,13 +25,13 @@ pub async fn is_authorized(
     let db = client.database("api_key_db");
     let collection = db.collection::<ApiKey>("api_keys");
     if let Some(key) = collection.find_one(filter, None).await? {
-        Ok(!is_expired(key.expire_dt))
+        Ok(!is_expired(key.expire_dt).expect("Unable to determine key expire_dt validity"))
     } else {
         Ok(false)
     }
 }
 
-/// Determiens if the api key is expired by checking the expire_dt
-fn is_expired(expire_dt: String) -> bool {
-    false
+/// Determines if the api key is expired by checking the expire_dt
+fn is_expired(expire_dt: String) -> Result<bool, chrono::ParseError> {
+    Ok(DateTime::parse_from_str(&expire_dt, DT_FORMAT)? < chrono::offset::Utc::now())
 }

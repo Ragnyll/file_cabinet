@@ -1,7 +1,6 @@
-use std::collections::HashMap;
-
 use crate::extract::docs;
 use mongodb::Client;
+use std::collections::HashMap;
 use warp::Filter;
 
 fn with_db(
