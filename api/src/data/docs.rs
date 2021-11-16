@@ -1,4 +1,4 @@
-use crate::extract::models::doc;
+use crate::data::models::doc;
 use crate::auth::authorization;
 use crate::server::reply;
 use futures::stream::TryStreamExt;
