@@ -1,6 +1,6 @@
 use crate::extract::models::doc;
 use crate::auth::authorization;
-use crate::extract::models::reply;
+use crate::server::reply;
 use futures::stream::TryStreamExt;
 use mongodb::Client;
 use std::collections::HashMap;
@@ -12,12 +12,17 @@ pub async fn list_all_doc_tags(
     param: HashMap<String, String>,
 ) -> Result<impl warp::Reply, std::convert::Infallible> {
     // TODO: move this expct call into something that will 500
-    if !authorization::is_authorized(&client, &auth)
-        .await
-        .expect("unable to handle authorization")
-    {
-        return reply::handle_response(StatusCode::FORBIDDEN, None);
-    }
+    match authorization::is_authorized(&client, &auth)
+        .await {
+            Ok(r) => {
+                if !r {
+                    return reply::handle_response(StatusCode::FORBIDDEN, None);
+                }
+            },
+            Err(_) => {
+                return reply::handle_response(StatusCode::INTERNAL_SERVER_ERROR, None);
+            }
+        }
 
     let db = client.database("tagdb");
     let collection = db.collection::<doc::Doc>("docs");

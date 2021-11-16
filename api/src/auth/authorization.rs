@@ -17,10 +17,7 @@ struct ApiKey {
 
 /// Checks if a request is authorized by seeing if there is an allowed matching api_key in the
 /// database
-pub async fn is_authorized(
-    client: &Client,
-    api_key_val: &str,
-) -> Result<bool, mongodb::error::Error> {
+pub async fn is_authorized(client: &Client, api_key_val: &str) -> Result<bool, mongodb::error::Error> {
     let filter = doc! { "api_name": "file_cabinet", "api_key": api_key_val };
     let db = client.database("api_key_db");
     let collection = db.collection::<ApiKey>("api_keys");
