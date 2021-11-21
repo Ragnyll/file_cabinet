@@ -3,13 +3,11 @@ use crate::auth::authorization;
 use crate::server::reply;
 use futures::stream::TryStreamExt;
 use mongodb::Client;
-use std::collections::HashMap;
 use warp::http::StatusCode;
 
-pub async fn list_all_doc_tags(
+pub async fn get_all_docs(
     client: Client,
     auth: String,
-    param: HashMap<String, String>,
 ) -> Result<impl warp::Reply, std::convert::Infallible> {
     // TODO: move this expct call into something that will 500
     match authorization::is_authorized(&client, &auth)
@@ -36,3 +34,4 @@ pub async fn list_all_doc_tags(
 
     reply::handle_response(StatusCode::OK, Some(docs))
 }
+

@@ -1,7 +1,6 @@
-use crate::data::{docs, create_docs};
+use crate::data::{create_docs, get_docs};
 use crate::routing::db::db_resource;
 use mongodb::Client;
-use std::collections::HashMap;
 use warp::Filter;
 
 pub fn docs_endpoints(
@@ -18,8 +17,7 @@ pub fn get_docs(
         .and(warp::get())
         .and(db_resource::with_db(db_client))
         .and(warp::header("Authorization"))
-        .and(warp::query::<HashMap<String, String>>())
-        .and_then(docs::list_all_doc_tags)
+        .and_then(get_docs::get_all_docs)
 }
 
 pub fn post_doc(
