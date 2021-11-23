@@ -1,4 +1,4 @@
-use crate::data::{create_docs, get_docs};
+use crate::data::{create_docs, get_docs, patch_docs};
 use crate::routing::db::db_resource;
 use mongodb::Client;
 use warp::Filter;
@@ -8,6 +8,7 @@ pub fn docs_endpoints(
 ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
     get_docs(db_client.clone())
         .or(post_doc(db_client.clone()))
+        .or(add_tags_to_doc(db_client.clone()))
 }
 
 pub fn get_docs(
@@ -29,4 +30,15 @@ pub fn post_doc(
         .and(warp::header("Authorization"))
         .and(create_docs::json_body())
         .and_then(create_docs::create_docs)
+}
+
+pub fn add_tags_to_doc(
+    db_client: Client,
+) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+    warp::path!("docs")
+        .and(warp::patch())
+        .and(db_resource::with_db(db_client))
+        .and(warp::header("Authorization"))
+        .and(patch_docs::json_body())
+        .and_then(patch_docs::add_tags)
 }
